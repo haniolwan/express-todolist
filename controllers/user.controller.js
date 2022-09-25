@@ -22,10 +22,8 @@ const login = async (req, res) => {
             res.cookie('ACCESS_TOKEN', token).json({ message: "Welcome user" });
         }
     }
-    catch ({ message }) {
-        res.json({
-            message
-        })
+    catch (error) {
+        next(error)
     }
 }
 const create = async (req, res, next) => {
@@ -45,10 +43,8 @@ const create = async (req, res, next) => {
         await user.save();
         const token = await sign({ email, password }, 'shhhhhh');
         res.cookie('ACCESS_TOKEN', token).json({ message: "Welcome user" });
-    } catch (e) {
-        res.json({
-            message
-        })
+    } catch (error) {
+        next(error)
     }
 
 }
