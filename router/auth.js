@@ -1,22 +1,16 @@
 const { join } = require('path');
 const { Router } = require('express');
-
+const { login, create, findAll, findUser } = require('../controllers/user.controller');
 
 const authRouter = Router();
 
-authRouter.get('/login', (req, res) => {
-    res.sendFile(join(__dirname, '..', 'views', 'login.html'));
-})
-authRouter.post('/login', (req, res) => {
-    res.send("Post login")
-})
+authRouter.post('/login', login)
 
-authRouter.get('/signup', (req, res) => {
-    res.sendFile(join(__dirname, '..', 'views', 'signup.html'));
-})
-authRouter.post('/signup', (req, res) => {
-    res.send("Post Signup")
-})
+authRouter.post('/signup', create)
+
+authRouter.get('/users', findAll)
+
+authRouter.get('/users/:id', findUser)
 
 module.exports = {
     authRouter
