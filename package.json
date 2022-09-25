@@ -20,5 +20,9 @@
   "homepage": "https://github.com/haniolwan/express-todolist#readme",
   "devDependencies": {
     "nodemon": "^2.0.20"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.2",
+    "mongoose": "^6.6.1"
   }
 }
