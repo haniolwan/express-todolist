@@ -21,7 +21,7 @@ const create = async (req, res, next) => {
             user_id: id
         });
         await todo.save();
-        res.json({ message: "To do created successfully" });
+        res.json({ message: "Todo created successfully" });
     } catch (error) {
         error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
     }
@@ -29,10 +29,10 @@ const create = async (req, res, next) => {
 
 const findFirst = async (req, res, next) => {
     try {
-        const { id: _id } = await idSchema.validateAsync(req.params);
+        const { id: todoId } = await idSchema.validateAsync(req.params);
         const { token } = req.body;
         const { id: userId } = await verify(token, process.env.SECRET_KEY);
-        const todo = await Todo.findOne({ _id })
+        const todo = await Todo.findOne({ _id: todoId })
         if (userId === todo.user_id) {
             res.json({ message: "Success", data: todo });
         } else {
@@ -56,12 +56,31 @@ const deleteItem = async (req, res, next) => {
             throw new CustomError(400, 'Not Authroized')
         }
     } catch (error) {
-        next(error)
+        error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
     }
-
 }
-const edit = async (req, res, next) => {
 
+const update = async (req, res, next) => {
+    try {
+        const { title, body, color, category, token } = await todoSchema.validateAsync(req.body);
+        const { id: todoId } = await idSchema.validateAsync(req.params);
+        const { id: userId } = await verify(token, process.env.SECRET_KEY);
+        const todo = await Todo.findById(todoId);
+        if (userId === todo.user_id) {
+            await todo.updateOne({
+                title,
+                body,
+                color,
+                category,
+                user_id: userId
+            });
+            res.json({ message: "Todo updated successfully" })
+        } else {
+            throw new CustomError(400, 'Not Authroized')
+        }
+    } catch (error) {
+        error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
+    }
 }
 
 const findAll = async (req, res, next) => {
@@ -77,7 +96,6 @@ const findAll = async (req, res, next) => {
 
 const deleteRecords = async (req, res, next) => {
     await User.deleteMany({})
-
     await Todo.deleteMany({})
 }
 
@@ -85,7 +103,7 @@ module.exports = {
     create,
     findFirst,
     deleteItem,
-    edit,
+    update,
     findAll,
     deleteRecords
 }

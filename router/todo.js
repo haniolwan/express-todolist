@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { create,
     findAll,
-    edit,
+    update,
     deleteItem,
     findFirst,
     deleteRecords
@@ -10,14 +10,13 @@ const todoRouter = Router();
 
 todoRouter.post('/create', create)
 todoRouter.get('/all', findAll)
+todoRouter.get('/delete-all', deleteRecords)
 
 todoRouter.route('/:id')
     .get(findFirst)
     .delete(deleteItem)
-    .patch(edit);
+    .put(update);
 
-
-todoRouter.get('/delete-all', deleteRecords)
 
 
 

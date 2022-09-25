@@ -2,9 +2,9 @@ const Joi = require('joi');
 
 const todoSchema = Joi.object({
     title: Joi.string().required(),
-    body: Joi.string().required(),
-    category: Joi.array().required(),
-    color: Joi.string().required(),
+    body: Joi.string(),
+    category: Joi.array(),
+    color: Joi.string(),
     token: Joi.string().required(),
 })
 
