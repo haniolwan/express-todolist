@@ -17,10 +17,9 @@ const login = async (req, res, next) => {
         const isValid = await compare(password, user[0].password);
         if (!isValid) {
             throw new customError(400, "Password doesnt match")
-        } else {
-            const token = await sign({ email, password }, 'shhhhhh');
-            res.cookie('ACCESS_TOKEN', token).json({ message: "Welcome user" });
         }
+        const token = await sign({ email, password }, 'shhhhhh');
+        res.json({ message: "Welcome user", token });
     }
     catch (error) {
         next(error)
@@ -41,7 +40,7 @@ const create = async (req, res, next) => {
         });
         await user.save();
         const token = await sign({ email, password }, process.env.SECRET_KEY);
-        res.cookie('ACCESS_TOKEN', token).json({ message: "Welcome user" });
+        res.json({ message: "Welcome user", token });
     } catch (error) {
         next(error)
     }
@@ -53,7 +52,7 @@ const findAll = async (req, res, next) => {
         const users = await User.find()
         res.json({ message: "Success", data: users });
     } catch (error) {
-        next(error)
+        console.log(error)
     }
 }
 
