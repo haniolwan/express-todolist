@@ -7,7 +7,7 @@ const { userSchema } = require('../utils/user.validation');
 
 
 
-const login = async (req, res) => {
+const login = async (req, res, next) => {
     try {
         const { email, password } = await userSchema.validateAsync(req.body);
         const user = await User.find({ email });
@@ -27,7 +27,6 @@ const login = async (req, res) => {
     }
 }
 const create = async (req, res, next) => {
-
     try {
         const { email, password } = await userSchema.validateAsync(req.body);
         let isValid = await User.findOne({ email });
@@ -41,7 +40,7 @@ const create = async (req, res, next) => {
             password: hashedPassword
         });
         await user.save();
-        const token = await sign({ email, password }, 'shhhhhh');
+        const token = await sign({ email, password }, process.env.SECRET_KEY);
         res.cookie('ACCESS_TOKEN', token).json({ message: "Welcome user" });
     } catch (error) {
         next(error)
@@ -49,31 +48,18 @@ const create = async (req, res, next) => {
 
 }
 
-const findAll = async (req, res) => {
-    return User.find()
-        .then(data => {
-            res.send({ message: "Success", data });
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Some error occured"
-            });
-        });
-}
-
-const findUser = async (req, res) => {
-    return User.find()
-        .then(data => {
-            res.send({ message: "Success", data });
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Some error occured"
-            });
-        });
+const findAll = async (req, res, next) => {
+    try {
+        const users = await User.find()
+        res.json({ message: "Success", data: users });
+    } catch (error) {
+        next(error)
+    }
 }
 
 
 module.exports = {
-    create, findAll, login, findUser
+    create,
+    findAll,
+    login
 }
