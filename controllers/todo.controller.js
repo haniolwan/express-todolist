@@ -1,12 +1,12 @@
 
 var { verify } = require('jsonwebtoken');
 const { Todo } = require('../models/todo.model');
-const { User } = require('../models/user.model');
 
-
-const { todoSchema,
+const {
+    todoSchema,
     idSchema,
-    CustomError
+    CustomError,
+    tokenSchema
 } = require('../utils');
 
 const create = async (req, res, next) => {
@@ -27,10 +27,10 @@ const create = async (req, res, next) => {
     }
 }
 
-const findFirst = async (req, res, next) => {
+const getTodo = async (req, res, next) => {
     try {
         const { id: todoId } = await idSchema.validateAsync(req.params);
-        const { token } = req.body;
+        const { token } = await tokenSchema.validateAsync(req.body.token);
         const { id: userId } = await verify(token, process.env.SECRET_KEY);
         const todo = await Todo.findOne({ _id: todoId })
         if (userId === todo.user_id) {
@@ -46,7 +46,7 @@ const findFirst = async (req, res, next) => {
 const deleteItem = async (req, res, next) => {
     try {
         const { id: todoId } = await idSchema.validateAsync(req.params);
-        const { token } = req.body;
+        const { token } = await tokenSchema.validateAsync(req.body.token);
         const { id: userId } = await verify(token, process.env.SECRET_KEY);
         const todo = await Todo.findById(todoId);
         if (userId === todo.user_id) {
@@ -85,7 +85,7 @@ const update = async (req, res, next) => {
 
 const findAll = async (req, res, next) => {
     try {
-        const { token } = req.body;
+        const { token } = await tokenSchema.validateAsync(req.body.token);
         const { id } = await verify(token, process.env.SECRET_KEY);
         const todos = await Todo.find({ user_id: id })
         res.json({ message: "Success", data: todos });
@@ -94,14 +94,9 @@ const findAll = async (req, res, next) => {
     }
 }
 
-const deleteRecords = async (req, res, next) => {
-    await User.deleteMany({})
-    await Todo.deleteMany({})
-}
-
 module.exports = {
     create,
-    findFirst,
+    getTodo,
     deleteItem,
     update,
     findAll,
