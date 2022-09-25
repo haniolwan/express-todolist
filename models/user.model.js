@@ -1,13 +1,17 @@
-module.exports = mongoose => {
-    const User = mongoose.model(
-        "user",
-        mongoose.Schema(
-            {
-                username: String,
-                email: String,
-                password: String
-            },
-        )
-    );
-    return User;
-};
+const mongoose = require('mongoose');
+
+
+const User = mongoose.model(
+    "user",
+    mongoose.Schema(
+        {
+            email: String,
+            password: String
+        },
+    )
+);
+
+
+module.exports = {
+    User
+}

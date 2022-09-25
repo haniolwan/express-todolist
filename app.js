@@ -12,16 +12,15 @@ db.on('open', () => {
     console.log('Database Connected')
 })
 
-const userModel = require('./models/user.model')(mongoose)
+
 
 const app = express();
 
 app.set('port', 8888)
-app.use(authRouter)
-app.use(express.static('public'))
-app.use(express.static('views'))
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use('/api',authRouter)
 
 module.exports = {
-    app
+    app, db
 }
