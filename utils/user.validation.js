@@ -5,6 +5,11 @@ const userSchema = Joi.object({
     email: Joi.string().required()
 })
 
+const idSchema = Joi.object({
+    id: Joi.string().required(),
+})
+
 module.exports = {
     userSchema,
+    idSchema
 }

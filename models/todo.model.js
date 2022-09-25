@@ -8,8 +8,9 @@ const Todo = mongoose.model(
             body: String,
             color: String,
             category: Array,
-            user: String
+            user_id: String
         },
+        { versionKey: false }
     )
 );
 
