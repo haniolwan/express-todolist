@@ -7,7 +7,7 @@ const { tokenSchema, CustomError } = require("../utils");
 const getAllUsers = async (req, res, next) => {
     try {
         const { token } = await tokenSchema.validateAsync(req.body);
-        const role = await verify(token, process.env.SECRET_KEY);
+        const { role } = await verify(token, process.env.SECRET_KEY);
         if (role === 'admin') {
             const users = await User.find({});
             res.json({ message: "Success", users })

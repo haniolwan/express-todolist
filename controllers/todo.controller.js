@@ -50,6 +50,7 @@ const deleteItem = async (req, res, next) => {
         const { id: userId } = await verify(token, process.env.SECRET_KEY);
         const todo = await Todo.findOne({ _id: todoId, user_id: userId });
         if (!todo) throw new CustomError(400, 'Todo doesnt exist');
+        if (todo.user_id !== userId) throw new CustomError(400, 'Not Authroized');
         await todo.deleteOne({});
         res.json({ message: "Todo deleted successfully" })
     } catch (error) {
