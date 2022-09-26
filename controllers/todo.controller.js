@@ -9,6 +9,7 @@ const {
     tokenSchema
 } = require('../utils');
 const { categorySchema } = require('../utils/category.validation');
+const { querySchema } = require('../utils/query.validation');
 
 const create = async (req, res, next) => {
     try {
@@ -102,11 +103,12 @@ const filterByCategory = async (req, res, next) => {
 
 const filterTodo = async (req, res, next) => {
     try {
+        const { search } = await querySchema.validateAsync(req.query);
         const { token } = await tokenSchema.validateAsync(req.body);
         const { id: userId } = await verify(token, process.env.SECRET_KEY);
-        const { search } = await req.query;
-        const rgx = (pattern) => new RegExp(`.*${search}.*`);
+        const rgx = (pattern) => new RegExp(`.*${pattern}.*`);
         const todos = await Todo.find({
+            $and: [{ user_id: userId }],
             $or: [
                 { title: { $regex: rgx(search), $options: 'i' } },
                 { body: { $regex: rgx(search), $options: 'i' } },
