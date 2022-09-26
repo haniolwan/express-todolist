@@ -8,6 +8,7 @@ const {
     CustomError,
     tokenSchema
 } = require('../utils');
+const { categorySchema } = require('../utils/category.validation');
 
 const create = async (req, res, next) => {
     try {
@@ -87,10 +88,42 @@ const findAll = async (req, res, next) => {
     }
 }
 
+const filterByCategory = async (req, res, next) => {
+    try {
+        const { token } = await tokenSchema.validateAsync(req.body);
+        const { category } = await categorySchema.validateAsync(req.params);
+        const { id: userId } = await verify(token, process.env.SECRET_KEY);
+        const todos = await Todo.find({ category, user_id: userId })
+        res.json({ message: "Success", data: todos })
+    } catch (error) {
+        error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
+    }
+}
+
+const filterTodo = async (req, res, next) => {
+    try {
+        const { token } = await tokenSchema.validateAsync(req.body);
+        const { id: userId } = await verify(token, process.env.SECRET_KEY);
+        const { search } = await req.query;
+        const rgx = (pattern) => new RegExp(`.*${search}.*`);
+        const todos = await Todo.find({
+            $or: [
+                { title: { $regex: rgx(search), $options: 'i' } },
+                { body: { $regex: rgx(search), $options: 'i' } },
+            ]
+        }).limit(5)
+        res.json({ message: "Success", data: todos })
+    } catch (error) {
+        error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
+    }
+}
+
 module.exports = {
     create,
     getTodo,
     deleteItem,
     update,
     findAll,
+    filterTodo,
+    filterByCategory
 }
