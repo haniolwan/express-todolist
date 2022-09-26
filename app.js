@@ -3,6 +3,7 @@ const { authRouter } = require('./router/auth')
 require('dotenv').config()
 const mongoose = require('mongoose')
 const { todoRouter } = require('./router/todo')
+const { adminRouter } = require('./router/admin')
 
 mongoose.connect(process.env.DATABASE_URL)
 const db = mongoose.connection
@@ -22,6 +23,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use('/api', authRouter)
 app.use('/api/todo', todoRouter)
+app.use('/api/admin', adminRouter)
+
 
 
 app.use((err, req, res, next) => {

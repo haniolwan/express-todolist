@@ -29,9 +29,7 @@ const create = async (req, res, next) => {
     try {
         const { email, password } = await userSchema.validateAsync(req.body);
         let isValid = await User.findOne({ email });
-        if (isValid) {
-            throw new customError(400, "User already exists")
-        }
+        if (isValid) throw new customError(400, "User already exists")
         const salt = await genSalt(10);
         const hashedPassword = await hash(password, salt);
         const user = new User({
@@ -39,7 +37,7 @@ const create = async (req, res, next) => {
             password: hashedPassword
         });
         await user.save();
-        const token = await sign({ id: user[0]._id, email, password }, process.env.SECRET_KEY);
+        const token = await sign({ id: user._id, email, password }, process.env.SECRET_KEY);
         res.json({ message: "Welcome user", token });
     } catch (error) {
         next(error)
