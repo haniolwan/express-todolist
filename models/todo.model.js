@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const mongoosePaginate = require('mongoose-paginate-v2');
 
 const Todo = mongoose.model(
     "todo",
@@ -11,7 +12,7 @@ const Todo = mongoose.model(
             user_id: String
         },
         { versionKey: false }
-    )
+    ).plugin(mongoosePaginate)
 );
 
 

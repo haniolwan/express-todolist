@@ -10,16 +10,19 @@ const { create,
 
 const todoRouter = Router();
 
-todoRouter.get('/all', findAll)
 
+
+todoRouter.get('/', findAll)
 todoRouter.post('/create', create)
 todoRouter.route('/:id')
     .get(getTodo)
     .delete(deleteItem)
     .put(update);
 
-todoRouter.get('/', filterTodo)
 todoRouter.get('/category/:category', filterByCategory)
+
+
+
 
 module.exports = {
     todoRouter

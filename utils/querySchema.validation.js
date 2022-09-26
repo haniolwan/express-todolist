@@ -1,7 +1,9 @@
 const Joi = require('joi');
 
 const querySchema = Joi.object({
-    search: Joi.string().required().trim().min(1)
+    page: Joi.string().trim(),
+    limit: Joi.string().trim(),
+    search: Joi.string().trim(),
 })
 
 module.exports = {

@@ -10,7 +10,7 @@ const getAllUsers = async (req, res, next) => {
         const { role } = await verify(token, process.env.SECRET_KEY);
         if (role === 'admin') {
             const users = await User.find({});
-            res.json({ message: "Success", users })
+            res.json({ message: "Success", data: users })
         } else {
             throw new CustomError(400, 'Not Authorized')
         }
@@ -21,11 +21,11 @@ const getAllUsers = async (req, res, next) => {
 
 const getAllTodos = async (req, res, next) => {
     try {
-        const { token } = await tokenSchema.validateAsync(req.body.token);
+        const { token } = await tokenSchema.validateAsync(req.body);
         const { role } = await verify(token, process.env.SECRET_KEY);
         if (role === 'admin') {
             const todos = await Todo.find({});
-            res.json({ message: "Success", todos })
+            res.json({ message: "Success", data: todos })
         } else {
             throw new CustomError(400, 'Not Authorized')
         }
