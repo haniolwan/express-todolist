@@ -5,7 +5,7 @@ const {
     genSalt
 } = require('bcryptjs');
 var { sign } = require('jsonwebtoken');
-const { User } = require('./../models/user.model');
+const { User } = require('../database/models/user.model');
 const { userSchema, CustomError } = require('../utils');
 
 

@@ -1,0 +1,19 @@
+{
+    "users": [
+        {
+            "email": "hani@gmail.com",
+            "password": "$2a$10$1PnH1C5lgL2FPjgk41Z.3.21bmdMhnlYBjUfJEnWYK/aTiuE2mRJC",
+            "role": "admin"
+        },
+        {
+            "email": "ahmed@gmail.com",
+            "password": "$2a$10$1PnH1C5lgL2FPjgk41Z.3.21bmdMhnlYBjUfJEnWYK/aTiuE2mRJC",
+            "role": "admin"
+        },
+        {
+            "email": "mohammed@gmail.com",
+            "password": "$2a$10$1PnH1C5lgL2FPjgk41Z.3.21bmdMhnlYBjUfJEnWYK/aTiuE2mRJC",
+            "role": "user"
+        }
+    ]
+}

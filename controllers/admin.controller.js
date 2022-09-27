@@ -1,6 +1,6 @@
 const { verify } = require('jsonwebtoken');
-const { Todo } = require("../models/todo.model");
-const { User } = require("../models/user.model");
+const { Todo } = require("../database/models/todo.model");
+const { User } = require("../database/models/user.model");
 const { tokenSchema, CustomError } = require("../utils");
 
 

@@ -1,11 +1,14 @@
+const { default: mongoose } = require('mongoose');
 const request = require('supertest');
 const { app } = require('../app');
+const { buildFakeData } = require('../database/build');
+
+beforeEach(() => buildFakeData());
 
 describe("User Auth", () => {
-    const email = (Math.random() + 1).toString(36).substring(7);
     test('Success Register', async () => {
         const payload = {
-            email: `${email}@test.com`,
+            email: "test@test.com",
             password: "12345"
         }
         const response = await request(app)
@@ -21,7 +24,7 @@ describe("User Auth", () => {
 
     test('Success login', async () => {
         const payload = {
-            email: `${email}@test.com`,
+            email: "hani@gmail.com",
             password: '12345',
         };
         const response = await request(app)
@@ -44,7 +47,7 @@ describe("User Auth", () => {
             .post('/api/login')
             .send(payload)
             .expect(400);
-        expect(response.body.message).toBe('User doesnt exist');
+        expect(response.body).toMatchObject({ message: "User doesnt exist" })
     });
 
     test('Password doesnt match', async () => {
@@ -56,7 +59,7 @@ describe("User Auth", () => {
             .post('/api/login')
             .send(payload)
             .expect(400);
-        expect(response.body.message).toBe('Password doesnt match');
+        expect(response.body).toMatchObject({ message: "Password doesnt match" })
     });
 
     test('User already exists', async () => {
@@ -85,5 +88,6 @@ describe("User Auth", () => {
             "message": "\"email\" is required"
         })
     });
-
 })
+
+afterAll(() => mongoose.connection.close());

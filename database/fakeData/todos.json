@@ -1,0 +1,37 @@
+{
+    "todos": [
+        {
+            "_id": "63317c6daede5ee4c18b6cd2",
+            "title": "Eat breakfast",
+            "body": "Wake up and eat breakfast",
+            "color": "red",
+            "category": [
+                "fitness",
+                "health"
+            ],
+            "user_id": "6330b405009f6cba386c66b5"
+        },
+        {
+            "_id": "6332a5eafa73a3378e014d0a",
+            "title": "Go for a run",
+            "body": "Run more than 15 miles",
+            "color": "yellow",
+            "category": [
+                "fitness",
+                "health"
+            ],
+            "user_id": "6330b405009f6cba386c66b5"
+        },
+        {
+            "_id": "6332a6181fe97201625cb7b4",
+            "title": "Study for finals",
+            "body": "You have a test on tuesday",
+            "color": "green",
+            "category": [
+                "motivation",
+                "study"
+            ],
+            "user_id": "6330b405009f6cba386c66b5"
+        }
+    ]
+}

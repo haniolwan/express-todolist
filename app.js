@@ -10,8 +10,9 @@ if (process.env.NODE_ENV === 'dev') {
     DB_URL = process.env.DATABASE_URL
 } else if (process.env.NODE_ENV === 'test') {
     DB_URL = process.env.DATABASE_TEST_URL
+} else {
+    throw new Error('NODE_ENV is not set');
 }
-
 mongoose.connect(DB_URL)
 const db = mongoose.connection
 db.on('error', () => {
@@ -20,8 +21,6 @@ db.on('error', () => {
 db.on('open', () => {
     console.log('Database Connected')
 })
-
-
 
 const app = express();
 
