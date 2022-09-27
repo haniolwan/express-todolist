@@ -20,7 +20,7 @@ const login = async (req, res, next) => {
         res.json({ message: "Welcome user", token });
     }
     catch (error) {
-        next(error)
+        error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
     }
 }
 
@@ -39,7 +39,7 @@ const create = async (req, res, next) => {
         const token = sign({ id: user._id, email, password }, process.env.SECRET_KEY);
         res.json({ message: "Welcome user", token });
     } catch (error) {
-        next(error)
+        error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
     }
 
 }

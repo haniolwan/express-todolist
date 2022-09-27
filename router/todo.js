@@ -12,7 +12,7 @@ const todoRouter = Router();
 
 todoRouter.use(auth)
 
-todoRouter.get('/',findAll)
+todoRouter.get('/', findAll)
 todoRouter.post('/create', create)
 todoRouter.route('/:id')
     .get(getTodo)

@@ -5,7 +5,14 @@ const mongoose = require('mongoose')
 const { todoRouter } = require('./router/todo')
 const { adminRouter } = require('./router/admin')
 
-mongoose.connect(process.env.DATABASE_URL)
+let DB_URL = '';
+if (process.env.NODE_ENV === 'dev') {
+    DB_URL = process.env.DATABASE_URL
+} else if (process.env.NODE_ENV === 'test') {
+    DB_URL = process.env.DATABASE_TEST_URL
+}
+
+mongoose.connect(DB_URL)
 const db = mongoose.connection
 db.on('error', () => {
     console.log('Database Connection Error')
