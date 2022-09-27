@@ -6,9 +6,10 @@ const {
     todoSchema,
     idSchema,
     CustomError,
-    tokenSchema
+    tokenSchema,
+    querySchema,
+    categorySchema
 } = require('../utils');
-const { querySchema, categorySchema } = require('../utils');
 
 const create = async (req, res, next) => {
     try {
@@ -120,7 +121,8 @@ const filterByCategory = async (req, res, next) => {
             $or: [
                 { title: { $regex: rgx(search), $options: 'i' } },
                 { body: { $regex: rgx(search), $options: 'i' } },
-            ]},
+            ]
+        },
             {
                 page,
                 limit

@@ -5,11 +5,9 @@ const { create,
     deleteItem,
     getTodo,
     filterByCategory,
-    filterTodo
 } = require('../controllers/todo.controller');
 
 const todoRouter = Router();
-
 
 
 todoRouter.get('/', findAll)
@@ -20,8 +18,6 @@ todoRouter.route('/:id')
     .put(update);
 
 todoRouter.get('/category/:category', filterByCategory)
-
-
 
 
 module.exports = {
