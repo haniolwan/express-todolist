@@ -18,7 +18,7 @@ const login = async (req, res, next) => {
         if (!isValid) {
             throw new customError(400, "Password doesnt match")
         }
-        const token = await sign({ id: user[0]._id, email, password }, process.env.SECRET_KEY);
+        const token = sign({ id: user[0]._id, email, password }, process.env.SECRET_KEY);
         res.json({ message: "Welcome user", token });
     }
     catch (error) {
@@ -37,7 +37,7 @@ const create = async (req, res, next) => {
             password: hashedPassword
         });
         await user.save();
-        const token = await sign({ id: user._id, email, password }, process.env.SECRET_KEY);
+        const token = sign({ id: user._id, email, password }, process.env.SECRET_KEY);
         res.json({ message: "Welcome user", token });
     } catch (error) {
         next(error)

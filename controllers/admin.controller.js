@@ -7,7 +7,8 @@ const { tokenSchema, CustomError } = require("../utils");
 const getAllUsers = async (req, res, next) => {
     try {
         const { token } = await tokenSchema.validateAsync(req.body);
-        const { role } = await verify(token, process.env.SECRET_KEY);
+        const { email } = verify(token, process.env.SECRET_KEY);
+        const { role } = await User.findOne({ email });
         if (role === 'admin') {
             const users = await User.find({});
             res.json({ message: "Success", data: users })
@@ -22,7 +23,8 @@ const getAllUsers = async (req, res, next) => {
 const getAllTodos = async (req, res, next) => {
     try {
         const { token } = await tokenSchema.validateAsync(req.body);
-        const { role } = await verify(token, process.env.SECRET_KEY);
+        const { email } = verify(token, process.env.SECRET_KEY);
+        const { role } = await User.findOne({ email });
         if (role === 'admin') {
             const todos = await Todo.find({});
             res.json({ message: "Success", data: todos })
