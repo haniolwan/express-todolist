@@ -23,6 +23,7 @@ const login = async (req, res, next) => {
         next(error)
     }
 }
+
 const create = async (req, res, next) => {
     try {
         const { email, password } = await userSchema.validateAsync(req.body);

@@ -1,26 +1,24 @@
 
-const { verify } = require('jsonwebtoken');
 const { Todo } = require('../models/todo.model');
 
 const {
     todoSchema,
     idSchema,
     CustomError,
-    tokenSchema,
     querySchema,
     categorySchema
 } = require('../utils');
 
 const create = async (req, res, next) => {
     try {
-        const { title, body, color, category, token } = await todoSchema.validateAsync(req.body);
-        const { id } = verify(token, process.env.SECRET_KEY);
+        const { title, body, color, category } = await todoSchema.validateAsync(req.body);
+        const { id: userId } = req.user;
         const todo = new Todo({
             title,
             body,
             color,
             category,
-            user_id: id
+            user_id: userId
         });
         await todo.save();
         res.json({ message: "Todo created successfully" });
@@ -32,8 +30,7 @@ const create = async (req, res, next) => {
 const getTodo = async (req, res, next) => {
     try {
         const { id: todoId } = await idSchema.validateAsync(req.params);
-        const { token } = await tokenSchema.validateAsync(req.body);
-        const { id: userId } = verify(token, process.env.SECRET_KEY);
+        const { id: userId } = req.user;
         const todo = await Todo.findOne({ _id: todoId })
         if (!todo) throw new CustomError(400, 'Todo doesnt exist');
         if (todo.user_id !== userId) throw new CustomError(403, 'Not Authroized');
@@ -46,8 +43,7 @@ const getTodo = async (req, res, next) => {
 const deleteItem = async (req, res, next) => {
     try {
         const { id: todoId } = await idSchema.validateAsync(req.params);
-        const { token } = await tokenSchema.validateAsync(req.body);
-        const { id: userId } = verify(token, process.env.SECRET_KEY);
+        const { id: userId } = req.user;
         const todo = await Todo.findOne({ _id: todoId, user_id: userId });
         if (!todo) throw new CustomError(400, 'Todo doesnt exist');
         if (todo.user_id !== userId) throw new CustomError(403, 'Not Authroized');
@@ -60,9 +56,9 @@ const deleteItem = async (req, res, next) => {
 
 const update = async (req, res, next) => {
     try {
-        const { title, body, color, category, token } = await todoSchema.validateAsync(req.body);
+        const { title, body, color, category } = await todoSchema.validateAsync(req.body);
         const { id: todoId } = await idSchema.validateAsync(req.params);
-        const { id: userId } = verify(token, process.env.SECRET_KEY);
+        const { id: userId } = req.user;
         const todo = await Todo.findOne({ _id: todoId });
         if (!todo) throw new CustomError(400, 'Todo doesnt exist');
         if (todo.user_id !== userId) throw new CustomError(403, 'Not Authorized');
@@ -82,8 +78,7 @@ const update = async (req, res, next) => {
 const findAll = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, search = '' } = await querySchema.validateAsync(req.query);
-        const { token } = await tokenSchema.validateAsync(req.body);
-        const { id: userId } = verify(token, process.env.SECRET_KEY);
+        const { id: userId } = req.user;
         const rgx = (pattern) => new RegExp(`.*${pattern}.*`);
         const { docs, page: currentPage, totalPages } = await Todo.paginate(
             {
@@ -112,9 +107,8 @@ const findAll = async (req, res, next) => {
 const filterByCategory = async (req, res, next) => {
     try {
         const { page = 1, limit = 10, search = '' } = await querySchema.validateAsync(req.query);
-        const { token } = await tokenSchema.validateAsync(req.body);
         const { category } = await categorySchema.validateAsync(req.params);
-        const { id: userId } = verify(token, process.env.SECRET_KEY);
+        const { id: userId } = req.user;
         const rgx = (pattern) => new RegExp(`.*${pattern}.*`);
         const { docs, page: currentPage, totalPages } = await Todo.paginate({
             $and: [{ category, user_id: userId }],
