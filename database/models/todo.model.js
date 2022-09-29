@@ -12,7 +12,8 @@ const Todo = mongoose.model(
             category: Array,
             motivation: String,
             color: String,
-            user_id: String
+            user_id: String,
+            state: { type: String, default: 'open' }
         },
         { versionKey: false }
     ).plugin(mongoosePaginate)
