@@ -6,9 +6,11 @@ const Todo = mongoose.model(
     mongoose.Schema(
         {
             title: String,
-            body: String,
-            color: String,
+            priority: String,
+            date: String,
             category: Array,
+            motivation: String,
+            color: String,
             user_id: String
         },
         { versionKey: false }

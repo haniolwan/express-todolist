@@ -1,23 +1,35 @@
 
 const { Todo } = require('../database/models/todo.model');
-const { querySchema } = require('../utils');
+const { querySchema, todoSchema } = require('../utils');
 
 
 const create = async (req, res, next) => {
     try {
-        const { title, body, color, category } = await todoSchema.validateAsync(req.body);
+        const {
+            title,
+            priority,
+            date,
+            motivation,
+            category,
+            color
+        } = await todoSchema.validateAsync(req.body);
         const { id: userId } = req.user;
         const todo = new Todo({
             title,
-            body,
-            color,
+            priority,
+            date,
+            motivation,
             category,
+            color,
             user_id: userId
         });
         await todo.save();
         res.json({ message: "Todo created successfully" });
     } catch (error) {
-        error.name === 'ValidationError' ? next(new CustomError(400, error.message)) : next(error);
+        if (error.name === 'ValidationError') {
+            next(new CustomError(400, error.message))
+        }
+        next(error);
     }
 }
 
@@ -68,7 +80,14 @@ const deleteItem = async (req, res, next) => {
 
 const update = async (req, res, next) => {
     try {
-        const { title, body, color, category } = await todoSchema.validateAsync(req.body);
+        const {
+            title,
+            priority,
+            date,
+            motivation,
+            category,
+            color,
+        } = await todoSchema.validateAsync(req.body);
         const { id: todoId } = await idSchema.validateAsync(req.params);
         const { id: userId } = req.user;
         const todo = await Todo.findOne({ _id: todoId });
@@ -80,9 +99,11 @@ const update = async (req, res, next) => {
         }
         await todo.updateOne({
             title,
-            body,
-            color,
+            priority,
+            date,
+            motivation,
             category,
+            color,
             user_id: userId
         })
         res.json({ message: "Todo updated successfully" })

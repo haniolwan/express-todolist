@@ -2,10 +2,11 @@ const Joi = require('joi');
 
 const todoSchema = Joi.object({
     title: Joi.string().required(),
-    body: Joi.string(),
+    priority: Joi.string().required(),
+    date: Joi.string().required(),
+    motivation: Joi.string(),
     category: Joi.array(),
-    color: Joi.string(),
-    token: Joi.string().required(),
+    color: Joi.string().required(),
 })
 
 module.exports = {
