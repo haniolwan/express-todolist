@@ -1,13 +1,7 @@
 
 const { Todo } = require('../database/models/todo.model');
+const { querySchema } = require('../utils');
 
-const {
-    todoSchema,
-    idSchema,
-    CustomError,
-    querySchema,
-    categorySchema
-} = require('../utils');
 
 const create = async (req, res, next) => {
     try {

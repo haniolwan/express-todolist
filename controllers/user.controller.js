@@ -6,7 +6,8 @@ const {
 } = require('bcryptjs');
 var { sign } = require('jsonwebtoken');
 const { User } = require('../database/models/user.model');
-const { userSchema, CustomError } = require('../utils');
+const { CustomError } = require('../utils');
+const { userSchema } = require('../utils/validation.schemas/user.validation');
 
 
 const login = async (req, res, next) => {
