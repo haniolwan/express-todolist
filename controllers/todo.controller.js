@@ -1,13 +1,18 @@
 
 const { Todo } = require('../database/models/todo.model');
-const { querySchema, todoSchema } = require('../utils');
-
+const {
+    querySchema,
+    todoSchema,
+    CustomError,
+    idSchema
+} = require('../utils');
 
 const create = async (req, res, next) => {
     try {
         const {
             title,
             priority,
+            time,
             date,
             motivation,
             category,
@@ -17,6 +22,7 @@ const create = async (req, res, next) => {
         const todo = new Todo({
             title,
             priority,
+            time,
             date,
             motivation,
             category,
@@ -83,6 +89,7 @@ const update = async (req, res, next) => {
         const {
             title,
             priority,
+            time,
             date,
             motivation,
             category,
@@ -100,6 +107,7 @@ const update = async (req, res, next) => {
         await todo.updateOne({
             title,
             priority,
+            time,
             date,
             motivation,
             category,

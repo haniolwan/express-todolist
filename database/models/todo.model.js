@@ -7,6 +7,7 @@ const Todo = mongoose.model(
         {
             title: String,
             priority: String,
+            time: String,
             date: String,
             category: Array,
             motivation: String,

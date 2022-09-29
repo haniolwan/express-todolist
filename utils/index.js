@@ -5,6 +5,7 @@ const {
     categorySchema,
     tokenSchema,
     userSchema } = require("./validation.schemas");
+const { idSchema } = require("./validation.schemas/user.validation");
 
 module.exports = {
     CustomError,
@@ -12,5 +13,6 @@ module.exports = {
     querySchema,
     categorySchema,
     tokenSchema,
-    userSchema
+    userSchema,
+    idSchema
 }
