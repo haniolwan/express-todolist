@@ -6,7 +6,7 @@ const Todo = mongoose.model(
     mongoose.Schema(
         {
             title: String,
-            priority: String,
+            priority: { type: String, default: '' },
             time: String,
             date: String,
             category: Array,
@@ -15,6 +15,7 @@ const Todo = mongoose.model(
             user_id: String,
             state: { type: String, default: 'open' }
         },
+        { timestamps: true },
         { versionKey: false }
     ).plugin(mongoosePaginate)
 );

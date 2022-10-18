@@ -1,6 +1,8 @@
 const express = require('express')
-const { authRouter } = require('./router/auth')
+const cors = require('cors');
+const cookieParser = require("cookie-parser");
 require('dotenv').config()
+const { authRouter } = require('./router/auth')
 const mongoose = require('mongoose')
 const { todoRouter } = require('./router/todo')
 const { adminRouter } = require('./router/admin')
@@ -27,6 +29,8 @@ const app = express();
 app.set('port', 8888)
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+app.use(cookieParser());
 app.use('/api', authRouter)
 app.use('/api/todo', todoRouter)
 app.use('/api/admin', adminRouter)

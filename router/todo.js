@@ -5,6 +5,9 @@ const { create,
     deleteItem,
     getTodo,
     filterByCategory,
+    completeAll,
+    completeTodo,
+    statistics,
 } = require('../controllers/todo.controller');
 const { auth } = require('../middleware/auth');
 
@@ -15,12 +18,15 @@ todoRouter.use(auth)
 todoRouter.get('/', findAll)
 todoRouter.post('/create', create)
 todoRouter.route('/:id')
+    .post(completeTodo)
     .get(getTodo)
     .delete(deleteItem)
     .put(update);
 
-
 todoRouter.get('/category/:category', filterByCategory)
+todoRouter.post('/', completeAll)
+
+todoRouter.get('/statistics/all', statistics)
 
 
 module.exports = {

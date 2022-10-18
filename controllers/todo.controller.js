@@ -117,7 +117,7 @@ const update = async (req, res, next) => {
         res.json({ message: "Todo updated successfully" })
     } catch (error) {
         if (error.name === 'CastError') {
-            next(new CustomError(400, 'Todo Doesnt exist'))
+            next(new CustomError(400, 'Todo doesnt exist'))
         } else if (error.name === 'ValidationError') {
             next(new CustomError(400, error.message))
         }
@@ -127,20 +127,25 @@ const update = async (req, res, next) => {
 
 const findAll = async (req, res, next) => {
     try {
-        const { page = 1, limit = 10, search = '' } = await querySchema.validateAsync(req.query);
+        const { page = 1, limit = 10, search = '', priority = '', date = '' } = await querySchema.validateAsync(req.query);
         const { id: userId } = req.user;
         const rgx = (pattern) => new RegExp(`.*${pattern}.*`);
         const { docs, page: currentPage, totalPages } = await Todo.paginate(
             {
-                $and: [{ user_id: userId }],
+                $and: [
+                    { user_id: userId, },
+                    { priority: { $regex: rgx(priority), $options: 'i' } },
+                    { date: { $regex: rgx(date), $options: 'i' } },
+                ],
                 $or: [
                     { title: { $regex: rgx(search), $options: 'i' } },
                     { body: { $regex: rgx(search), $options: 'i' } },
-                ]
+                ],
             },
             {
                 page,
-                limit
+                limit,
+                sort: { state: 'desc', createdAt: 'asc' },
             },
         )
         res.json({
@@ -170,7 +175,7 @@ const filterByCategory = async (req, res, next) => {
             {
                 page,
                 limit
-            });
+            })
         res.json({
             message: "Success",
             data: docs,
@@ -182,11 +187,76 @@ const filterByCategory = async (req, res, next) => {
     }
 }
 
+const completeAll = async (req, res, next) => {
+    try {
+        await Todo.updateMany({ state: "open" }, { $set: { state: "done" } });
+        res.json({ message: "Todos completed successfully" })
+    } catch (error) {
+        next(error)
+    }
+}
+
+const completeTodo = async (req, res, next) => {
+    try {
+        const { id: todoId } = await idSchema.validateAsync(req.params);
+        const { id: userId } = req.user;
+        const todo = await Todo.findOne({ _id: todoId });
+        if (!todo) {
+            throw new CustomError(400, 'Todo doesnt exist');
+        }
+        if (todo.user_id !== userId) {
+            throw new CustomError(403, 'Not Authorized');
+        }
+        if (todo.state === 'open') {
+            await todo.updateOne({
+                state: 'done',
+                user_id: userId
+            });
+            res.json({ message: "Todo completed successfully" })
+        } else {
+            await todo.updateOne({
+                state: 'open',
+                user_id: userId
+            })
+            res.json({ message: "Todo opened successfully" })
+        }
+    } catch (error) {
+        if (error.name === 'CastError') {
+            next(new CustomError(400, 'Todo doesnt exist'))
+        } else if (error.name === 'ValidationError') {
+            next(new CustomError(400, error.message))
+        }
+        next(error)
+    }
+}
+
+const statistics = async (req, res, next) => {
+    try {
+        const completedTasks = await Todo.find({ state: 'done' }).count();
+        const remainingTasks = await Todo.find({ state: 'open' }).count();
+        let total = completedTasks + remainingTasks;
+        if (!total) {
+            total = 1;
+        }
+        res.json({
+            completedTasks,
+            remainingTasks,
+            completionRate: (completedTasks / total * 100).toFixed(1) + '%'
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
+
 module.exports = {
     create,
     getTodo,
     deleteItem,
     update,
     findAll,
-    filterByCategory
+    filterByCategory,
+    completeAll,
+    completeTodo,
+    statistics
 }

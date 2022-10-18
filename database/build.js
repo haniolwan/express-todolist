@@ -28,6 +28,10 @@ const buildFakeData = async () => {
     }
 }
 
+if (process.env.NODE_ENV === 'dev') {
+    return buildFakeData();
+}
+
 module.exports = {
     buildFakeData
 }
