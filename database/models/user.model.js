@@ -7,7 +7,8 @@ const User = mongoose.model(
             name: String,
             email: String,
             password: String,
-            role: { type: String, default: 'user' }
+            role: { type: String, default: 'user' },
+            notifyToken: String
         },
         { versionKey: false }
     )

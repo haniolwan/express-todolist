@@ -24,7 +24,7 @@ const login = async (req, res, next) => {
         const payload = {
             id: user._id,
             name: user.name,
-            role: user.role
+            role: user.role,
         }
         const token = sign(payload, process.env.SECRET_KEY);
 

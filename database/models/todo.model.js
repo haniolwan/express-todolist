@@ -13,12 +13,18 @@ const Todo = mongoose.model(
             motivation: String,
             color: String,
             user_id: String,
-            state: { type: String, default: 'open' }
+            state: { type: String, default: 'open' },
+            notification: { type: Boolean, default: false },
+            isNotified: { type: Boolean, default: false },
         },
         { timestamps: true },
         { versionKey: false }
-    ).plugin(mongoosePaginate)
+    ).index({ title: 'text' })
+        .plugin(mongoosePaginate)
 );
+
+// testing vim this normal writting now we need:wq
+
 
 
 module.exports = {

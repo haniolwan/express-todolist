@@ -8,10 +8,12 @@ const { create,
     completeAll,
     completeTodo,
     statistics,
+    setAlert
 } = require('../controllers/todo.controller');
 const { auth } = require('../middleware/auth');
 
 const todoRouter = Router();
+
 
 todoRouter.use(auth)
 
@@ -28,6 +30,7 @@ todoRouter.post('/', completeAll)
 
 todoRouter.get('/statistics/all', statistics)
 
+todoRouter.post('/:id/setAlert', setAlert)
 
 module.exports = {
     todoRouter

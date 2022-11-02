@@ -1,11 +1,13 @@
 const express = require('express')
 const cors = require('cors');
-const cookieParser = require("cookie-parser");
-require('dotenv').config()
-const { authRouter } = require('./router/auth')
 const mongoose = require('mongoose')
+const cookieParser = require("cookie-parser");
+const { authRouter } = require('./router/auth')
 const { todoRouter } = require('./router/todo')
-const { adminRouter } = require('./router/admin')
+const { adminRouter } = require('./router/admin');
+const { Todo } = require('./database/models/todo.model');
+require('dotenv').config()
+
 
 let DB_URL = '';
 if (process.env.NODE_ENV === 'dev') {
@@ -24,6 +26,7 @@ db.on('open', () => {
     console.log('Database Connected')
 })
 
+
 const app = express();
 
 app.set('port', 8888)
@@ -34,13 +37,17 @@ app.use(cookieParser());
 app.use('/api', authRouter)
 app.use('/api/todo', todoRouter)
 app.use('/api/admin', adminRouter)
+app.get('/deleteAll', async (req, res) => {
+    await Todo.deleteMany({});
+    res.json({ message: "All todos has been deleted" })
+})
 
-
+app.get(require('./middleware/taskQueue'))
 
 app.use((err, req, res, next) => {
     res.status(err.status || 500).json({ message: err.message || 'Server Error' })
 })
 
 module.exports = {
-    app, db
+    app, db,
 }

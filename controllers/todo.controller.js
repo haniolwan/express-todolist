@@ -1,5 +1,8 @@
-
+const moment = require('moment')
 const { Todo } = require('../database/models/todo.model');
+const { User } = require('../database/models/user.model');
+const { redisClient } = require('../middleware/taskQueue');
+
 const {
     querySchema,
     todoSchema,
@@ -16,7 +19,8 @@ const create = async (req, res, next) => {
             date,
             motivation,
             category,
-            color
+            color,
+            notification
         } = await todoSchema.validateAsync(req.body);
         const { id: userId } = req.user;
         const todo = new Todo({
@@ -27,6 +31,7 @@ const create = async (req, res, next) => {
             motivation,
             category,
             color,
+            notification: notification === 'on',
             user_id: userId
         });
         await todo.save();
@@ -94,6 +99,7 @@ const update = async (req, res, next) => {
             motivation,
             category,
             color,
+            notification
         } = await todoSchema.validateAsync(req.body);
         const { id: todoId } = await idSchema.validateAsync(req.params);
         const { id: userId } = req.user;
@@ -112,6 +118,8 @@ const update = async (req, res, next) => {
             motivation,
             category,
             color,
+            notification,
+            isNotified: (notification && todo.isNotified),
             user_id: userId
         })
         res.json({ message: "Todo updated successfully" })
@@ -136,10 +144,7 @@ const findAll = async (req, res, next) => {
                     { user_id: userId, },
                     { priority: { $regex: rgx(priority), $options: 'i' } },
                     { date: { $regex: rgx(date), $options: 'i' } },
-                ],
-                $or: [
-                    { title: { $regex: rgx(search), $options: 'i' } },
-                    { body: { $regex: rgx(search), $options: 'i' } },
+                    { title: { $regex: rgx(search), $options: "i" } },
                 ],
             },
             {
@@ -248,6 +253,39 @@ const statistics = async (req, res, next) => {
     }
 }
 
+const setAlert = async (req, res, next) => {
+    try {
+        const { id: todoId } = await idSchema.validateAsync(req.params);
+        const { id: userId } = req.user;
+        const todo = await Todo.findOne({ _id: todoId });
+
+        const { notifyToken } = await User.findOne({ _id: userId })
+        if (!todo) {
+            throw new CustomError(400, 'Todo doesnt exist');
+        }
+        if (todo.user_id !== userId) {
+            throw new CustomError(403, 'Not Authorized');
+        }
+        await todo.updateOne({
+            notification: !todo.notification,
+            user_id: userId,
+            isNotified: false,
+        });
+        res.json({ message: "Todo alert setted" })
+    } catch (error) {
+        if (error.name === 'CastError') {
+            next(new CustomError(400, 'Todo doesnt exist'))
+        } else if (error.name === 'ValidationError') {
+            next(new CustomError(400, error.message))
+        }
+        next(error)
+    }
+}
+
+
+
+
+
 
 module.exports = {
     create,
@@ -258,5 +296,6 @@ module.exports = {
     filterByCategory,
     completeAll,
     completeTodo,
-    statistics
+    statistics,
+    setAlert
 }

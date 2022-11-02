@@ -8,7 +8,7 @@ const todoSchema = Joi.object({
     motivation: Joi.string().allow(''),
     category: Joi.array(),
     color: Joi.string().required(),
-    notification: Joi.string().allow(''),
+    notification: Joi.boolean().allow(''),
 })
 
 module.exports = {
