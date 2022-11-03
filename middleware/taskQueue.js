@@ -78,7 +78,7 @@ const taskQueue = async () => {
         })
     }, redisConfiguration);
     worker.on('completed', async job => {
-        console.log("Todo sent to user")
+        // console.log("Todo sent to user")
     });
     worker.on('progress', job => {
         console.info('job is in progress!');

@@ -1,7 +1,5 @@
 const moment = require('moment')
 const { Todo } = require('../database/models/todo.model');
-const { User } = require('../database/models/user.model');
-const { redisClient } = require('../middleware/taskQueue');
 
 const {
     querySchema,
@@ -259,7 +257,6 @@ const setAlert = async (req, res, next) => {
         const { id: userId } = req.user;
         const todo = await Todo.findOne({ _id: todoId });
 
-        const { notifyToken } = await User.findOne({ _id: userId })
         if (!todo) {
             throw new CustomError(400, 'Todo doesnt exist');
         }
@@ -281,11 +278,6 @@ const setAlert = async (req, res, next) => {
         next(error)
     }
 }
-
-
-
-
-
 
 module.exports = {
     create,

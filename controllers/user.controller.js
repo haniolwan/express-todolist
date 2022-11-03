@@ -7,6 +7,7 @@ const {
 var { sign } = require('jsonwebtoken');
 const { User } = require('../database/models/user.model');
 const { CustomError } = require('../utils');
+const { passwordSchema } = require('../utils/validation.schemas/password.validation');
 const { loginSchema, registerSchema } = require('../utils/validation.schemas/user.validation');
 
 
@@ -72,9 +73,57 @@ const checkAuth = async (req, res) => {
     res.json({ data: user });
 }
 
+const updateUserToken = async (req, res) => {
+    try {
+        const { notifyToken, userId } = req.body;
+        await User.updateOne({
+            _id: userId
+        }, {
+            $set: {
+                notifyToken: notifyToken
+            }
+        })
+        res.send({ message: 'User notification token registered' });
+    }
+    catch (error) {
+        next(error)
+    }
+}
+
+const changePassowrd = async (req, res, next) => {
+    try {
+        const { password, confirmPassword } = await passwordSchema.validateAsync(req.body);
+        if (password !== confirmPassword) {
+            throw new CustomError(400, "Password doesnt match");
+        }
+        if (password.length < 5) {
+            throw new CustomError(400, "Password length should be atleast 5 characters");
+        }
+        const user = await User.findOne({
+            _id: req.user.id
+        });
+
+        const salt = await genSalt(10);
+        const hashedPassword = await hash(password, salt);
+
+        await user.updateOne({
+            $set: {
+                password: hashedPassword
+            }
+        });
+
+        res.send({ message: 'Password successfully changed' });
+    }
+    catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     create,
     login,
     logout,
-    checkAuth
+    checkAuth,
+    updateUserToken,
+    changePassowrd
 }
