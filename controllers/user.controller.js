@@ -29,7 +29,13 @@ const login = async (req, res, next) => {
         }
         const token = sign(payload, process.env.SECRET_KEY);
 
-        res.cookie('_token', token).json({ message: "Welcome user", data: { user: payload, token } });
+        res.cookie('_token', token).json({
+            message: "Welcome user",
+            data: {
+                user: payload, //remove this line
+                token
+            }
+        });
     }
     catch (error) {
         if (error.name === 'ValidationError') {
@@ -70,7 +76,8 @@ const logout = async (req, res, next) => {
 
 const checkAuth = async (req, res) => {
     const { user } = req;
-    res.json({ data: user });
+    const { locale } = await User.findOne({ _id: user.id });
+    res.json({ data: { ...user, locale } });
 }
 
 const updateUserToken = async (req, res) => {
@@ -119,11 +126,27 @@ const changePassowrd = async (req, res, next) => {
     }
 }
 
+const setLocale = async (req, res, next) => {
+    try {
+        const { userId, locale } = req.body;
+        await User.updateOne({ _id: userId }, {
+            $set: {
+                locale
+            }
+        })
+        res.send({ message: "Locale set" })
+    }
+    catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     create,
     login,
     logout,
     checkAuth,
     updateUserToken,
-    changePassowrd
+    changePassowrd,
+    setLocale
 }
