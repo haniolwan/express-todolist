@@ -13,10 +13,26 @@ const { loginSchema, registerSchema } = require('../utils/validation.schemas/use
 
 const login = async (req, res, next) => {
     try {
-        const { email, password } = await loginSchema.validateAsync(req.body);
+        const { email, password, loginType } = await loginSchema.validateAsync(req.body);
         const user = await User.findOne({ email });
         if (!user) {
             throw new CustomError(400, "User doesnt exist");
+        }
+        if (loginType === 'google') {
+            const payload = {
+                id: user._id,
+                name: user.name,
+                role: user.role,
+            }
+            const token = sign(payload, process.env.SECRET_KEY);
+
+            res.cookie('_token', token).json({
+                message: "Welcome user",
+                data: {
+                    user: payload, //remove this line
+                    token
+                }
+            });
         }
         const isValid = await compare(password, user.password);
         if (!isValid) {
@@ -47,21 +63,34 @@ const login = async (req, res, next) => {
 
 const create = async (req, res, next) => {
     try {
-        const { name, email, password } = await registerSchema.validateAsync(req.body);
+        const { name, email, password, loginType } = await registerSchema.validateAsync(req.body);
         let isValid = await User.findOne({ email });
         if (isValid) {
             throw new CustomError(400, "User already exists");
         }
-        const salt = await genSalt(10);
-        const hashedPassword = await hash(password, salt);
-        const user = new User({
-            name,
-            email,
-            password: hashedPassword
-        });
-        await user.save();
-        const token = sign({ id: user._id, name: user.name, role: user.role }, process.env.SECRET_KEY);
-        res.cookie('_token', token).json({ message: "Welcome user", token });
+        if (loginType === 'google') {
+            const user = new User({
+                name,
+                email,
+                password: '0000',
+                loginType: 'google'
+            });
+            await user.save();
+            const token = sign({ id: user._id, name: user.name, role: user.role }, process.env.SECRET_KEY);
+            res.cookie('_token', token).json({ message: "Welcome user", token });
+        } else {
+            const salt = await genSalt(10);
+            const hashedPassword = await hash(password, salt);
+            const user = new User({
+                name,
+                email,
+                password: hashedPassword,
+                loginType: 'user'
+            });
+            await user.save();
+            const token = sign({ id: user._id, name: user.name, role: user.role }, process.env.SECRET_KEY);
+            res.cookie('_token', token).json({ message: "Welcome user", token });
+        }
     } catch (error) {
         if (error.name === 'ValidationError') {
             next(new CustomError(400, error.message))

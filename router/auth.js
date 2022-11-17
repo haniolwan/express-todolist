@@ -12,21 +12,14 @@ const { auth } = require('../middleware/auth');
 
 const authRouter = Router();
 
-authRouter.post('/login', login)
+authRouter.post('/signin', login)
 authRouter.post('/signup', create)
 authRouter.post('/logout', logout)
 
 authRouter.post('/updateUserToken', updateUserToken)
-
 authRouter.get('/checkAuth', auth, checkAuth)
-
 authRouter.post('/changePassword', auth, changePassowrd)
-
 authRouter.post('/setLanguage', auth, setLocale)
-
-
-
-
 
 module.exports = {
     authRouter,

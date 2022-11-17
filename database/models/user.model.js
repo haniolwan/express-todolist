@@ -10,6 +10,7 @@ const User = mongoose.model(
             role: { type: String, default: 'user' },
             notifyToken: String,
             locale: { type: String, default: 'en' },
+            loginType: { type: String, default: 'user' }
         },
         { versionKey: false }
     )
