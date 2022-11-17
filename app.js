@@ -6,6 +6,7 @@ const { authRouter } = require('./router/auth')
 const { todoRouter } = require('./router/todo')
 const { adminRouter } = require('./router/admin');
 const { Todo } = require('./database/models/todo.model');
+const { User } = require('./database/models/user.model');
 require('dotenv').config()
 
 
@@ -38,7 +39,7 @@ app.use('/api', authRouter)
 app.use('/api/todo', todoRouter)
 app.use('/api/admin', adminRouter)
 app.get('/deleteAll', async (req, res) => {
-    await Todo.deleteMany({});
+    await User.deleteMany({});
     res.json({ message: "All todos has been deleted" })
 })
 

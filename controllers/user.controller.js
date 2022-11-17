@@ -18,14 +18,19 @@ const login = async (req, res, next) => {
         if (!user) {
             throw new CustomError(400, "User doesnt exist");
         }
-        if (loginType === 'google') {
+        if (loginType === user.loginType) {
+            if (loginType === 'user') {
+                const isValid = await compare(password, user.password);
+                if (!isValid) {
+                    throw new CustomError(400, "Password doesnt match");
+                }
+            }
             const payload = {
                 id: user._id,
                 name: user.name,
                 role: user.role,
             }
             const token = sign(payload, process.env.SECRET_KEY);
-
             res.cookie('_token', token).json({
                 message: "Welcome user",
                 data: {
@@ -33,25 +38,9 @@ const login = async (req, res, next) => {
                     token
                 }
             });
+        } else {
+            throw new CustomError(400, `Login as ${user.loginType} instead`);
         }
-        const isValid = await compare(password, user.password);
-        if (!isValid) {
-            throw new CustomError(400, "Password doesnt match");
-        }
-        const payload = {
-            id: user._id,
-            name: user.name,
-            role: user.role,
-        }
-        const token = sign(payload, process.env.SECRET_KEY);
-
-        res.cookie('_token', token).json({
-            message: "Welcome user",
-            data: {
-                user: payload, //remove this line
-                token
-            }
-        });
     }
     catch (error) {
         if (error.name === 'ValidationError') {
@@ -78,7 +67,18 @@ const create = async (req, res, next) => {
             await user.save();
             const token = sign({ id: user._id, name: user.name, role: user.role }, process.env.SECRET_KEY);
             res.cookie('_token', token).json({ message: "Welcome user", token });
-        } else {
+        } if (loginType === 'facebook') {
+            const user = new User({
+                name,
+                email,
+                password: '0000',
+                loginType: 'facebook'
+            });
+            await user.save();
+            const token = sign({ id: user._id, name: user.name, role: user.role }, process.env.SECRET_KEY);
+            res.cookie('_token', token).json({ message: "Welcome user", token });
+        }
+        else {
             const salt = await genSalt(10);
             const hashedPassword = await hash(password, salt);
             const user = new User({
