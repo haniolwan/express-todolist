@@ -18,8 +18,13 @@ const idSchema = Joi.object({
     id: Joi.string().required(),
 })
 
+const emailSchema = Joi.object({
+    email: Joi.string().required(),
+})
+
 module.exports = {
     registerSchema,
     loginSchema,
-    idSchema
+    idSchema,
+    emailSchema
 }

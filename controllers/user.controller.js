@@ -1,14 +1,19 @@
-
+var fs = require('fs');
 const {
     compare,
     hash,
     genSalt
 } = require('bcryptjs');
 var { sign } = require('jsonwebtoken');
+const axios = require('axios');
+const nodemailer = require('nodemailer');
+const handlebars = require('handlebars');
+
 const { User } = require('../database/models/user.model');
 const { CustomError } = require('../utils');
 const { passwordSchema } = require('../utils/validation.schemas/password.validation');
-const { loginSchema, registerSchema } = require('../utils/validation.schemas/user.validation');
+const { loginSchema, registerSchema, emailSchema } = require('../utils/validation.schemas/user.validation');
+const path = require('path');
 
 
 const login = async (req, res, next) => {
@@ -170,6 +175,56 @@ const setLocale = async (req, res, next) => {
     }
 }
 
+
+
+const resetPassword = async (req, res, next) => {
+    try {
+        const { email } = await emailSchema.validateAsync(req.body);
+        let user = await User.findOne({ email });
+        if (!user) {
+            throw new CustomError(400, "Email doesn't exist");
+        }
+        const filePath = path.join(__dirname, '..', 'public', 'email-template.html');
+        const html = fs.readFileSync(filePath, { encoding: 'utf-8' })
+        const template = handlebars.compile(html);
+
+        const replacements = {
+            name: user.name,
+            action_url: "http://localhost:3000/reset",
+        };
+
+        const htmlToSend = template(replacements);
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.gmail.com',
+            port: 587,
+            auth: {
+                user: 'heenoow@gmail.com',
+                pass: 'hydvkqnglskacvjy',
+            },
+        });
+        const response = await transporter.verify()
+        if (response) {
+            transporter.sendMail(
+                {
+                    from: "Todo App",
+                    to: email,
+                    subject: "Reset Todo App Email",
+                    html: htmlToSend,
+                }
+            )
+            res.send({ message: 'Message sent successfully, check your mail!' });
+        } else {
+            throw new CustomError(400, 'Email could not be sent')
+        }
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            next(new CustomError(400, error.message))
+        }
+        next(error);
+    }
+
+}
+
 module.exports = {
     create,
     login,
@@ -177,5 +232,6 @@ module.exports = {
     checkAuth,
     updateUserToken,
     changePassowrd,
-    setLocale
+    setLocale,
+    resetPassword
 }
