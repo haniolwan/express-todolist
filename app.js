@@ -5,13 +5,14 @@ const cookieParser = require("cookie-parser");
 const { authRouter } = require('./router/auth')
 const { todoRouter } = require('./router/todo')
 const { adminRouter } = require('./router/admin');
-const { Todo } = require('./database/models/todo.model');
 const { User } = require('./database/models/user.model');
 require('dotenv').config()
 
 
 let DB_URL = '';
-if (process.env.NODE_ENV === 'dev') {
+if (process.env.MONGODB_URI) {
+    DB_URL = process.env.MONGODB_URI
+} else if (process.env.NODE_ENV === 'dev') {
     DB_URL = process.env.DATABASE_URL
 } else if (process.env.NODE_ENV === 'test') {
     DB_URL = process.env.DATABASE_TEST_URL
@@ -26,7 +27,6 @@ db.on('error', () => {
 db.on('open', () => {
     console.log('Database Connected')
 })
-
 
 const app = express();
 

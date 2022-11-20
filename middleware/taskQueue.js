@@ -91,7 +91,7 @@ const taskQueue = async () => {
         taskQueue()
     }, 60000 * 5)
 }
-// taskQueue()
+taskQueue()
 
 module.exports = {
     redisClient
