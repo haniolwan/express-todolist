@@ -4,13 +4,15 @@ const {
     hash,
     genSalt
 } = require('bcryptjs');
-var { sign } = require('jsonwebtoken');
+var { sign, verify } = require('jsonwebtoken');
 const axios = require('axios');
 const nodemailer = require('nodemailer');
 const handlebars = require('handlebars');
 
 const { User } = require('../database/models/user.model');
-const { CustomError } = require('../utils');
+const { PasswordReset } = require('../database/models/passwordReset.modal');
+
+const { CustomError, tokenSchema } = require('../utils');
 const { passwordSchema } = require('../utils/validation.schemas/password.validation');
 const { loginSchema, registerSchema, emailSchema } = require('../utils/validation.schemas/user.validation');
 const path = require('path');
@@ -177,7 +179,7 @@ const setLocale = async (req, res, next) => {
 
 
 
-const resetPassword = async (req, res, next) => {
+const sendResetEmail = async (req, res, next) => {
     try {
         const { email } = await emailSchema.validateAsync(req.body);
         let user = await User.findOne({ email });
@@ -188,18 +190,22 @@ const resetPassword = async (req, res, next) => {
         const html = fs.readFileSync(filePath, { encoding: 'utf-8' })
         const template = handlebars.compile(html);
 
+        const payload = {
+            id: user._id,
+            email: email,
+        }
+        const token = sign(payload, process.env.SECRET_KEY);
         const replacements = {
             name: user.name,
-            action_url: "http://localhost:3000/reset",
+            action_url: `http://localhost:3000/reset/?token=${token}`,
         };
-
         const htmlToSend = template(replacements);
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 587,
             auth: {
                 user: 'heenoow@gmail.com',
-                pass: 'hydvkqnglskacvjy',
+                pass: process.env.TWOFA,
             },
         });
         const response = await transporter.verify()
@@ -212,6 +218,11 @@ const resetPassword = async (req, res, next) => {
                     html: htmlToSend,
                 }
             )
+            const resetDoc = new PasswordReset({
+                user_id: user._id,
+                user_token: token,
+            })
+            resetDoc.save();
             res.send({ message: 'Message sent successfully, check your mail!' });
         } else {
             throw new CustomError(400, 'Email could not be sent')
@@ -222,7 +233,50 @@ const resetPassword = async (req, res, next) => {
         }
         next(error);
     }
+}
 
+const resetEmail = async (req, res, next) => {
+    try {
+        const { token } = await tokenSchema.validateAsync(req.query);
+        const requestedUser = await PasswordReset.findOne({ user_token: token });
+        if (!requestedUser) {
+            throw new CustomError(400, "User doesn't exist");
+        }
+        const passed24 = (new Date() - requestedUser.createdAt) / 1000 / 60 / 60 > 24;
+        if (passed24) {
+            throw new CustomError(400, "Verification email expired");
+        }
+        const { password, confirmPassword } = await passwordSchema.validateAsync(req.body);
+        if (password !== confirmPassword) {
+            throw new CustomError(400, "Password doesnt match");
+        }
+        if (password.length < 5) {
+            throw new CustomError(400, "Password length must be atleast 5 characters");
+        }
+        if (requestedUser.isResetted) {
+            throw new CustomError(400, "Wait 24h to reset your password");
+        }
+        const salt = await genSalt(10);
+        const hashedPassword = await hash(password, salt);
+        await User.updateOne({
+            _id: requestedUser.user_id,
+        }, {
+            password: hashedPassword
+        })
+        await PasswordReset.updateOne({
+            user_token: token
+        }, {
+            $set: {
+                isResetted: true
+            }
+        })
+        res.send({ message: 'Password successfully changed' });
+    } catch (error) {
+        if (error.name === 'ValidationError') {
+            next(new CustomError(400, error.message))
+        }
+        next(error);
+    }
 }
 
 module.exports = {
@@ -233,5 +287,6 @@ module.exports = {
     updateUserToken,
     changePassowrd,
     setLocale,
-    resetPassword
+    sendResetEmail,
+    resetEmail
 }

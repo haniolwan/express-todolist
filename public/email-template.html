@@ -453,6 +453,9 @@
             color-scheme: light dark;
             supported-color-schemes: light dark;
         }
+        .username{
+            text-transform: uppercase;
+        }
     </style>
     
 </head>
@@ -479,7 +482,7 @@
                                 <tr>
                                     <td class="content-cell">
                                         <div class="f-fallback">
-                                            <h1>Hi {{name}},</h1>
+                                            <h1 class="username">Hi {{name}},</h1>
                                             <p>You recently requested to reset your password for your Todo App
                                                 account. Use the button below to reset it. <strong>This password reset
                                                     is only valid for the next 24 hours.</strong></p>

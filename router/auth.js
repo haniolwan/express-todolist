@@ -7,7 +7,8 @@ const {
     updateUserToken,
     changePassowrd,
     setLocale,
-    resetPassword
+    sendResetEmail,
+    resetEmail
 } = require('../controllers/user.controller');
 const { auth } = require('../middleware/auth');
 
@@ -22,8 +23,8 @@ authRouter.get('/checkAuth', auth, checkAuth)
 authRouter.post('/changePassword', auth, changePassowrd)
 authRouter.post('/setLanguage', auth, setLocale)
 
-authRouter.post('/password/reset', resetPassword);
-
+authRouter.post('/password/reset', sendResetEmail);
+authRouter.post('/reset/:token', resetEmail);
 
 module.exports = {
     authRouter,
