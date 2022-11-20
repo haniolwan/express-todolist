@@ -182,7 +182,7 @@ const setLocale = async (req, res, next) => {
 const sendResetEmail = async (req, res, next) => {
     try {
         const { email } = await emailSchema.validateAsync(req.body);
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email, loginType: 'user' });
         if (!user) {
             throw new CustomError(400, "Email doesn't exist");
         }
